@@ -1,6 +1,6 @@
 #![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
 
-use std::{pin::Pin, ptr::addr_of};
+use std::{pin::Pin, ptr};
 
 #[derive(Clone)]
 pub struct UniqueId {
@@ -28,7 +28,7 @@ impl core::hash::Hash for UniqueId {
 
 impl PartialEq for UniqueId {
     fn eq(&self, other: &Self) -> bool {
-        std::ptr::eq(&*self.inner, &*other.inner)
+        ptr::eq(&*self.inner, &*other.inner)
     }
 }
 
@@ -52,7 +52,7 @@ impl UniqueId {
     }
 
     pub fn as_usize(&self) -> usize {
-        addr_of!(*self.inner) as usize
+        ptr::addr_of!(*self.inner) as usize
     }
 }
 

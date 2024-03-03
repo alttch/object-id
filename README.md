@@ -39,12 +39,12 @@ use std::sync::Mutex;
 
 static EVENT_RECEIVERS: Lazy<Mutex<Vec<(usize, Sender<()>)>>> = Lazy::new(<_>::default);
 
-struct A {
+struct Client {
     id: UniqueId,
     rx: Receiver<()>
 }
 
-impl Drop for A {
+impl Drop for Client {
     fn drop(&mut self) {
         EVENT_RECEIVERS.lock().unwrap().retain(|(id, _)| *id != self.id.as_usize());
     }
@@ -52,9 +52,9 @@ impl Drop for A {
 
 {
     let (tx, rx) = mpsc::channel();
-    let a = A { id: <_>::default(), rx };
-    EVENT_RECEIVERS.lock().unwrap().push((a.id.as_usize(), tx));
-}
+    let client = Client { id: <_>::default(), rx };
+    EVENT_RECEIVERS.lock().unwrap().push((client.id.as_usize(), tx));
+} // the client is dropped here
 assert!(EVENT_RECEIVERS.lock().unwrap().is_empty());
 ```
 
