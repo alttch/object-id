@@ -58,12 +58,38 @@ impl UniqueId {
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use crate::UniqueId;
 
     #[derive(Clone, Eq, PartialEq, Debug)]
     struct Test {
         id: UniqueId,
     }
+
+    struct TestWrapper {
+        inner: Arc<Test>,
+    }
+
+    impl Clone for TestWrapper {
+        fn clone(&self) -> Self {
+            Self {
+                inner: self.inner.clone(),
+            }
+        }
+    }
+
+    impl TestWrapper {
+        fn new() -> Self {
+            Self {
+                inner: Test { id: <_>::default() }.into(),
+            }
+        }
+        fn id(&self) -> usize {
+            self.inner.id.as_usize()
+        }
+    }
+
     #[cfg(not(debug_assertions))]
     #[test]
     fn test_stack() {
@@ -102,5 +128,11 @@ generator may be inlined"
         assert_eq!(x[0].id.as_usize(), n);
         let t_back = x.pop().unwrap();
         assert_eq!(t_back.id.as_usize(), n);
+    }
+    #[test]
+    fn test_arc_covered() {
+        let t1 = TestWrapper::new();
+        let t2 = t1.clone();
+        assert_eq!(t1.id(), t2.id());
     }
 }
