@@ -2,7 +2,7 @@
 
 Rust unique object ID
 
-A simple object which guaranties that object ID is unique until dropped.
+A simple object which guaranties that an object ID is unique until dropped.
 
 ## How it works
 
@@ -20,6 +20,9 @@ removed from collections, maps etc.
 
 Keep in mind that when either **UniqueId** object or the parent object is
 cloned, the ID is changed.
+
+If the parent object is covered with **Arc**, it is physically unchanged when
+cloned (both clones point to the same variable), so its ID remains the same.
 
 ## Other traits
 
