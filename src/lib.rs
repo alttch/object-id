@@ -1,7 +1,18 @@
 #![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
-#[derive(Default, Clone)]
+
+use std::pin::Pin;
+
+#[derive(Clone)]
 pub struct UniqueId {
-    inner: Box<u8>,
+    // Box itself is a guarantee that the pointer to the covered is not modified, Pin is added just
+    // to ensure it by 200%
+    inner: Pin<Box<u8>>,
+}
+
+impl Default for UniqueId {
+    fn default() -> Self {
+        Self { inner: Box::pin(0) }
+    }
 }
 
 impl core::fmt::Debug for UniqueId {
