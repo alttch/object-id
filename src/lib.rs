@@ -1,6 +1,6 @@
 #![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
 
-use std::pin::Pin;
+use std::{pin::Pin, ptr::addr_of};
 
 #[derive(Clone)]
 pub struct UniqueId {
@@ -52,7 +52,7 @@ impl UniqueId {
     }
 
     pub fn as_usize(&self) -> usize {
-        &*self.inner as *const u8 as usize
+        addr_of!(*self.inner) as usize
     }
 }
 
@@ -64,6 +64,15 @@ mod test {
     struct Test {
         id: UniqueId,
     }
+    #[cfg(not(debug_assertions))]
+    #[test]
+    fn test_stack() {
+        panic!(
+            "the test MUST be run for the debug target as there is still a chance the object
+generator may be inlined"
+        );
+    }
+    #[cfg(debug_assertions)]
     #[test]
     fn test_stack() {
         #[inline(never)]
@@ -72,8 +81,6 @@ mod test {
             let n = t.id.as_usize();
             (t, n)
         }
-        #[cfg(not(debug_assertions))]
-        panic!("the test MUST be run in the debug target as there is still a chance the object generator may be inlined");
         let (t, n) = generate();
         assert_eq!(t.id.as_usize(), n);
     }
