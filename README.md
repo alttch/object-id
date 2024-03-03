@@ -50,9 +50,12 @@ impl Drop for A {
     }
 }
 
-let (tx, rx) = mpsc::channel();
-let a = A { id: <_>::default(), rx };
-EVENT_RECEIVERS.lock().unwrap().push((a.id.as_usize(), tx));
+{
+    let (tx, rx) = mpsc::channel();
+    let a = A { id: <_>::default(), rx };
+    EVENT_RECEIVERS.lock().unwrap().push((a.id.as_usize(), tx));
+}
+assert!(EVENT_RECEIVERS.lock().unwrap().is_empty());
 ```
 
 The similar method can be used to store an async **Waker** of an object
