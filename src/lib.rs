@@ -55,11 +55,14 @@ mod test {
     }
     #[test]
     fn test_stack() {
+        #[inline(never)]
         fn generate() -> (Test, usize) {
             let t = Test { id: <_>::default() };
             let n = t.id.as_usize();
             (t, n)
         }
+        #[cfg(not(debug_assertions))]
+        panic!("the test MUST be run in the debug target as there is still a chance the object generator may be inlined");
         let (t, n) = generate();
         assert_eq!(t.id.as_usize(), n);
     }
